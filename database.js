@@ -1,6 +1,6 @@
 // imports
 const mongoose = require("mongoose");
-const config = require("./config/config");
+const config = require("./config_env/config");
 
 // connect database to mongo
 const connectDatabase = async () => {
