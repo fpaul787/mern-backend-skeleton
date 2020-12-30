@@ -1,26 +1,28 @@
 {
-	"name": "mern-setup",
-	"version": "1.0.0",
-	"description": "setup for mern application",
-	"main": "server.js",
-	"scripts": {
-		"start": "node server",
-		"server": "nodemon server"
-	},
-	"author": "Frantz Paul",
-	"license": "ISC",
-	"dependencies": {
-		"body-parser": "^1.19.0",
-		"crypto": "^1.0.1",
-		"dotenv": "^8.2.0",
-		"express": "^4.17.1",
-		"express-jwt": "^6.0.0",
-		"jsonwebtoken": "^8.5.1",
-		"lodash": "^4.17.20",
-		"mongoose": "^5.11.8"
-	},
-	"devDependencies": {
-		"concurrently": "^5.3.0",
-		"nodemon": "^2.0.6"
-	}
+  "name": "mern-setup",
+  "version": "1.0.0",
+  "description": "setup for mern application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "server": "nodemon server",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "author": "Frantz Paul",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-jwt": "^6.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.20",
+    "mongoose": "^5.11.8"
+  },
+  "devDependencies": {
+    "concurrently": "^5.3.0",
+    "nodemon": "^2.0.6"
+  }
 }

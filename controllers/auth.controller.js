@@ -10,7 +10,7 @@ const signin = async (req, res) => {
     });
     if (!user)
       return res.status("401").json({
-        error: "User not found",
+        error: "Account information was incorrectly entered",
       });
 
     if (!user.authenticate(req.body.password)) {
