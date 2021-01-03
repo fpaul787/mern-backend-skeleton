@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 // our model
-const User = require("../../models/User");
+const User = require("../../models/user.model.js");
 // method that helps with javascript arrays
 const { extend } = require("lodash");
 // utility that helps with error handling
