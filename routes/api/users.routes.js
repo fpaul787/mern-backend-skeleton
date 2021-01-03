@@ -9,7 +9,7 @@ const { extend } = require("lodash");
 const getErrorMessage = require("../../helpers/dbErrorHandler");
 // controller for auth sign in
 const {
-  requireSignin,
+  verifyRequest,
   hasAuthorization,
 } = require("../../controllers/auth.controller");
 
@@ -72,7 +72,7 @@ router.param("userId", async (req, res, next, id) => {
 // @route GET /api/users/:userId
 // @desc  Get a user profile
 // @access Private, requires sign in
-router.get("/:userId", requireSignin, async (req, res) => {
+router.get("/:userId", ...verifyRequest(), async (req, res) => {
   req.profile.hashed_password = undefined;
   req.profile.salt = undefined;
   return res.json(req.profile);
@@ -81,36 +81,46 @@ router.get("/:userId", requireSignin, async (req, res) => {
 // @route PUT /api/users/:userId
 // @desc  Update a user profile
 // @access Private, requires sign in and authorization
-router.put("/:userId", requireSignin, hasAuthorization, async (req, res) => {
-  try {
-    let user = req.profile;
-    user = extend(user, req.body); // from lodash module. Merge changes from body into user
-    user.updated = Date.now();
-    await user.save();
-    user.hashed_password = undefined;
-    user.salt = undefined;
-    res.json(user);
-  } catch (err) {
-    return res.status(400).json({
-      error: getErrorMessage(err),
-    });
+router.put(
+  "/:userId",
+  ...verifyRequest(),
+  hasAuthorization,
+  async (req, res) => {
+    try {
+      let user = req.profile;
+      user = extend(user, req.body); // from lodash module. Merge changes from body into user
+      user.updated = Date.now();
+      await user.save();
+      user.hashed_password = undefined;
+      user.salt = undefined;
+      res.json(user);
+    } catch (err) {
+      return res.status(400).json({
+        error: getErrorMessage(err),
+      });
+    }
   }
-});
+);
 
 // @route DELETE /api/users/:userId
 // @desc  Delete a user profile
 // @access Private, requires sign in and authorization
-router.delete("/:userId", requireSignin, hasAuthorization, async (req, res) => {
-  try {
-    let user = req.profile;
-    let deletedUser = await user.remove();
-    deletedUser.hashed_password = undefined;
-    deletedUser.salt = undefined;
-    res.json(deletedUser);
-  } catch (err) {
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err),
-    });
+router.delete(
+  "/:userId",
+  ...verifyRequest(),
+  hasAuthorization,
+  async (req, res) => {
+    try {
+      let user = req.profile;
+      let deletedUser = await user.remove();
+      deletedUser.hashed_password = undefined;
+      deletedUser.salt = undefined;
+      res.json(deletedUser);
+    } catch (err) {
+      return res.status(400).json({
+        error: errorHandler.getErrorMessage(err),
+      });
+    }
   }
-});
+);
 module.exports = router;
