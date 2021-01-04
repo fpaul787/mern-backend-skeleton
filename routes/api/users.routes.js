@@ -1,17 +1,30 @@
 // imports
 const express = require("express");
 const router = express.Router();
+const formidable = require("formidable");
+const fs = require("fs");
+var path = require("path");
+const expressJwt = require("express-jwt");
+const config = require("../../config/config");
+
+
 // our model
 const User = require("../../models/user.model.js");
 // method that helps with javascript arrays
-const { extend } = require("lodash");
+const { extend, fromPairs } = require("lodash");
 // utility that helps with error handling
 const getErrorMessage = require("../../helpers/dbErrorHandler");
 // controller for auth sign in
 const {
-  verifyRequest,
+
   hasAuthorization,
 } = require("../../controllers/auth.controller");
+
+const defaultPhoto = async (req, res) => {
+  return res.sendFile(
+    path.join(__dirname, "../../client/src/assets/", "profile-pic.png")
+  );
+};
 
 // @route GET api/users
 // @desc  Get users
@@ -32,6 +45,20 @@ router.get("/", async (req, res) => {
     });
   }
 });
+
+router.get(
+  "/photo/:userId",
+  async (req, res, next) => {
+    if (req.profile.photo.data) {
+      res.set("Content-Type", req.profile.photo.contentType);
+      return res.send(req.profile.photo.data);
+    }
+    next();
+  },
+  defaultPhoto
+);
+
+router.get("/defaultphoto", defaultPhoto);
 
 // @route POST api/users
 // @desc  Create a user
@@ -69,10 +96,16 @@ router.param("userId", async (req, res, next, id) => {
   }
 });
 
+const verifyRequest = expressJwt({
+  secret: config.jwtSecret,
+  userProperty: "auth",
+  algorithms: ["HS256"],
+});
+
 // @route GET /api/users/:userId
 // @desc  Get a user profile
 // @access Private, requires sign in
-router.get("/:userId", ...verifyRequest(), async (req, res) => {
+router.get("/:userId", verifyRequest, async (req, res) => {
   req.profile.hashed_password = undefined;
   req.profile.salt = undefined;
   return res.json(req.profile);
@@ -83,20 +116,33 @@ router.get("/:userId", ...verifyRequest(), async (req, res) => {
 // @access Private, requires sign in and authorization
 router.put(
   "/:userId",
-  ...verifyRequest(),
+  verifyRequest,
   hasAuthorization,
   async (req, res) => {
+    // formidable will allow the
+    // server to read the multipart
+    // form data and give us access
+    // to the fields and the file
+    // let form = new formidable.IncomingForm();
+    // form.keepExtensions = true;
+    // form.parse(req, async (err, fields, files) => {
+      
+    // });
+
     try {
       let user = req.profile;
       user = extend(user, req.body); // from lodash module. Merge changes from body into user
       user.updated = Date.now();
+
+
       await user.save();
       user.hashed_password = undefined;
       user.salt = undefined;
       res.json(user);
-    } catch (err) {
+    } catch (error) {
+      console.log(error.message)
       return res.status(400).json({
-        error: getErrorMessage(err),
+        error: getErrorMessage(error),
       });
     }
   }
@@ -107,7 +153,7 @@ router.put(
 // @access Private, requires sign in and authorization
 router.delete(
   "/:userId",
-  ...verifyRequest(),
+  verifyRequest,
   hasAuthorization,
   async (req, res) => {
     try {
@@ -123,4 +169,5 @@ router.delete(
     }
   }
 );
+
 module.exports = router;

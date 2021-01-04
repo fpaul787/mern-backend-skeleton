@@ -2,6 +2,10 @@
 const express = require("express");
 const connectDB = require("./database");
 const app = express();
+var path = require("path");
+const cors = require("cors");
+
+app.use(cors());
 
 // Connect Database
 connectDB();
@@ -18,6 +22,12 @@ app.use("/api/posts", require("./routes/api/posts.routes"));
 
 // specify port
 const PORT = process.env.PORT || 5000;
+
+// image directory
+var dir = path.join(__dirname, "./../../client/src/assets/");
+
+//setting middleware
+app.use(express.static(dir)); //Serves resources from assets folder
 
 // Binds and listens for connections on the specified host and port
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

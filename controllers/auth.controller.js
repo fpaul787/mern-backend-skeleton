@@ -74,18 +74,11 @@ const signout = (req, res) => {
 // has a valid JWT in the Authorization header
 // this function returns an error response
 // for an individual route
-function verifyRequest() {
-  return [
-    expressJwt({
-      secret: config.jwtSecret,
-      userProperty: "auth",
-      algorithms: ["HS256"],
-    }),
-    function (err, req, res, next) {
-      res.status(err.status).json(err);
-    },
-  ];
-}
+// const verifyRequest = expressJwt({
+//   secret: config.jwtSecret,
+//   userProperty: "auth",
+//   algorithms: ["HS256"],
+// });
 
 // check if user has auth to perfrom actions
 const hasAuthorization = (req, res, next) => {
@@ -102,6 +95,5 @@ const hasAuthorization = (req, res, next) => {
 module.exports = {
   signin,
   signout,
-  verifyRequest,
   hasAuthorization,
 };
